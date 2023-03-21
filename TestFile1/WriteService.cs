@@ -46,20 +46,17 @@ namespace TestFile1
 
         }
 
-        private async void write(IEnumerable<CBS_LN_APP> data, bool isAppend = false, int i=0)
+        private  void write(IEnumerable<CBS_LN_APP> data, bool isAppend = false, int i=0)
         {
 
-            await Task.Run(() =>
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(ToCsv(data, !isAppend));
+            StringBuilder sb = new StringBuilder();
+            sb.Append(ToCsv(data, !isAppend));
 
-                string startupPath = Environment.CurrentDirectory;
+            string startupPath = Environment.CurrentDirectory;
 
-                WriteFile(Environment.CurrentDirectory + "\\x.txt", sb, isAppend);
+            WriteFile(Environment.CurrentDirectory + "\\x.txt", sb, isAppend);
 
-                Console.WriteLine($"Write success ({i})");
-            });
+            Console.WriteLine($"Write success ({i})");
 
         }
 
