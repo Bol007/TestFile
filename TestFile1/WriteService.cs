@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,52 +13,101 @@ namespace TestFile1
     public class WriteService
     {
 
-        public void Process()
+        public int recordCount { get; set; }
+        public int remainCount { get; set; }
+        public int loop { get; set; } = 1000000;
+        public int nLoop { get; set; }
+        public Queue<CBS_LN_APP> qItems { get; set; }
+
+
+        public WriteService()
+        {
+            qItems = new Queue<CBS_LN_APP>();
+        }
+
+        public async void Process()
         {
 
-            List<CBS_LN_APP> data = new List<CBS_LN_APP>();
-            var model = new Model1();
-            var loop = 100000;
-            var total = 1000000;
-            var nLoop = total / loop;
-            var skip = 0;
-
-            for (int i = 1; i <= 600; i++)
-            {
-                var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(0).Take(1000000).ToList();
-                skip = skip + loop;
-
-                var isAppend = !(i == 1);
-                write(idata, isAppend,i);
-
-                Console.WriteLine($"Loop :  {i} , Data : {idata.Count}");
-            }
-
-            //for (int i = 1; i <= nLoop; i++)
-            //{
-            //    var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(skip).Take(loop).ToList();
-            //    skip = skip + loop;
-
-            //    var isAppend = !(i == 1);
-            //    write(idata, isAppend);
-
-            //    Console.WriteLine($"Loop :  {i} , Data : {idata.Count}");
-            //}
+            recordCount = await Init();
+            remainCount = recordCount;
+            Read();
+            var result = await Write();
 
         }
 
-        private  void write(IEnumerable<CBS_LN_APP> data, bool isAppend = false, int i=0)
+        private async Task<int> Init()
         {
+            var model = new Model1();
+            var result = model.Database.SqlQuery<int>("select 600000000");
+            return result.ToArray().First();
+        }
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append(ToCsv(data, !isAppend));
+        private async void Read()
+        {
+            await Task.Run(() =>
+            {
 
-            string startupPath = Environment.CurrentDirectory;
+                var model = new Model1();
+                nLoop = recordCount / loop;
+                var remain = recordCount % loop;
+                if (remain > 0)
+                {
+                    nLoop++;
+                }
+                var skip = 0;
 
-            WriteFile(Environment.CurrentDirectory + "\\x.txt", sb, isAppend);
+                for (int i = 1; i <= nLoop; i++)
+                {
+                    var data = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(0).Take(loop).ToList();
+                    foreach (var idata in data)
+                    {
+                        qItems.Enqueue(idata);
+                    }
 
-            Console.WriteLine($"Write success ({i})");
+                    skip = skip + loop;
+                    Console.WriteLine($"Loop :  {i} , Data : {data.Count}");
+                }
 
+            });
+        }
+
+        private async Task<bool> Write()
+        {
+            var index = 1;
+            var remain = recordCount % loop;
+            while (remainCount > 0)
+            {
+                List<CBS_LN_APP> data = new List<CBS_LN_APP>();
+                int numCheck = loop;
+                if (index == nLoop)
+                {
+                    numCheck = remain;
+                }
+
+                if (qItems.Count >= numCheck)
+                {
+
+                    for (int i = 1; i <= numCheck; i++)
+                    {
+                        data.Add(qItems.Dequeue());
+                    }
+
+                    var isAppend = !(index == 1);
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append(ToCsv(data, !isAppend));
+
+                    string startupPath = Environment.CurrentDirectory;
+                    WriteFile(Environment.CurrentDirectory + "\\x.txt", sb, isAppend);
+
+                    Console.WriteLine($"Write success ({index}) ,remainCount ({remainCount})");
+                    remainCount = remainCount - loop;
+                    index = index + 1;
+                    //Thread.Sleep(500);
+                }
+            }
+
+            return true;
         }
 
         private string ToCsv(IEnumerable<CBS_LN_APP> data, bool isHeader = true)
@@ -84,7 +134,7 @@ namespace TestFile1
                 {
                     Thread.Sleep(1000);
                     iCount = iCount - 1;
-                    if (iCount   ==  0)
+                    if (iCount == 0)
                     {
                         isRetry = false;
                     }
@@ -95,7 +145,7 @@ namespace TestFile1
                 }
 
             }
-        
+
 
         }
 
