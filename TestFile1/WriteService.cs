@@ -20,7 +20,7 @@ namespace TestFile1
         public WriteService()
         {
             FilePath = Environment.CurrentDirectory + $"\\files\\{Guid.NewGuid()}";
-            //FilePath = Environment.CurrentDirectory + $"\\files\\c993fd51-6bf9-4cc0-bd92-f304cdea6c81";
+            //FilePath = Environment.CurrentDirectory + $"\\files\\c244b80a-d2da-476d-8815-f8b62df93a56";
             System.IO.Directory.CreateDirectory(FilePath);
         }
 
@@ -28,6 +28,7 @@ namespace TestFile1
         {
             var s = DateTime.Now;
             StepOne();
+            MergeFile();
             var e = DateTime.Now;
             Console.WriteLine((e - s).TotalMinutes);
         }
@@ -43,8 +44,7 @@ namespace TestFile1
             {
                 var s = DateTime.Now;
                 Console.WriteLine($"StepOne :  {i} ");
-                // รอให้เสร็จ+
-                await StepTwo(i);
+                await StepTwo(i);   // รอให้เสร็จ+
                 var e = DateTime.Now;
                 Console.WriteLine("<<<<<<  "  +  (e - s).TotalMinutes);
             }
@@ -60,7 +60,8 @@ namespace TestFile1
             var nLoop = total / loopRec;
             var nFile = nLoop * a;
             var number = nLoop * (a - 1);
-
+            
+            //  แบ่ง task ทำงาน
             for (int i = 1; i <= nLoop; i++)
             {
                 int xx = number + i;
@@ -69,6 +70,7 @@ namespace TestFile1
                 t.Start();
             }
 
+            // รอวนจนกว่าไฟล์ครบ
             int fileCount = 0;
             do
             {
@@ -150,6 +152,7 @@ namespace TestFile1
             System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(FilePath);
             int fileCount = dir.GetFiles().Length;
             var newFile = Environment.CurrentDirectory + "\\final.txt";
+            File.Delete(newFile);
             //File.ReadAllLines(path);
 
             for (int i = 1; i <= fileCount; i++)
@@ -165,7 +168,6 @@ namespace TestFile1
                 }
 
                 WriteFile(newFile, sb.ToString(), true);
-
             }
         }
 
