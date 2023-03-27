@@ -18,7 +18,7 @@ namespace TestFile1
             {
                 var s = DateTime.Now;
                 var x = new WriteService();
-                x.Process();
+              x.Process();
                 var e = DateTime.Now;
                 Console.WriteLine((e - s).TotalMinutes);
             }
