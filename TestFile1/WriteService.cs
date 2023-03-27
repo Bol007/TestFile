@@ -24,52 +24,87 @@ namespace TestFile1
             System.IO.Directory.CreateDirectory(FilePath);
         }
 
-        public void Process()
+        public async void Process()
         {
+            var s = DateTime.Now;
+            StepOne();
+            var e = DateTime.Now;
+            Console.WriteLine((e - s).TotalMinutes);
+        }
 
-            List<CBS_LN_APP> data = new List<CBS_LN_APP>();
+        private async void StepOne()
+        {
             var model = new Model1();
-            var loop = 100;
-            var total = 50000;
-            var nLoop = total / loop;
-            var skip = 0;
+            var total = 100000000;
+            var loopRec = 1000000;
+            var nLoop = total / loopRec;
 
-            for (int i = 1; i <= 2000; i++)
+            for (int i = 1; i <= nLoop; i++)
             {
-                Console.WriteLine($"Loop :  {i} ");
-                var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(0).Take(50000).ToList();
-                skip = skip + loop;
-
-                var isAppend = !(i == 1);
-
-                write(idata, isAppend, i);
-
-                Console.WriteLine($"Loop :  {i} , Data : {idata.Count}");
+                var s = DateTime.Now;
+                Console.WriteLine($"StepOne :  {i} ");
+                // รอให้เสร็จ+
+                await StepTwo(i);
+                var e = DateTime.Now;
+                Console.WriteLine("<<<<<<  "  +  (e - s).TotalMinutes);
             }
-
-            //for (int i = 1; i <= nLoop; i++)
-            //{
-            //    var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(skip).Take(loop).ToList();
-            //    skip = skip + loop;
-
-            //    var isAppend = !(i == 1);
-            //    write(idata, isAppend);
-
-            //    Console.WriteLine($"Loop :  {i} , Data : {idata.Count}");
-            //}
 
         }
 
-        private async Task write(IEnumerable<CBS_LN_APP> data, bool isAppend = false, int i = 0)
+        private async Task<bool> StepTwo(int a)
         {
+            var model = new Model1();
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append(ToCsv(data, !isAppend));
+            var total = 1000000;
+            var loopRec = 100000;
+            var nLoop = total / loopRec;
+            var nFile = nLoop * a;
+            var number = nLoop * (a - 1);
 
-            isAppend = false;
-            WriteFile(FilePath + $"\\{FileName}{i}.txt", sb.ToString(), isAppend);
+            for (int i = 1; i <= nLoop; i++)
+            {
+                int xx = number + i;
+                Console.WriteLine($" Loop :  {xx} ");
+                Task t = new Task(() => ReadAndWrite(xx));
+                t.Start();
+            }
 
-            Console.WriteLine($"Write success ({i})");
+            int fileCount = 0;
+            do
+            {
+                System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(FilePath);
+                fileCount = dir.GetFiles().Length;
+                Thread.Sleep(1000);
+                Console.WriteLine($"file count {fileCount}");
+            } while (fileCount < nFile);
+
+            return true;
+        }
+
+
+        private async Task ReadAndWrite(int i = 0)
+        {
+            try
+            {
+                Console.WriteLine($"ReadAndWrite :  {i} ");
+                var model = new Model1();
+                var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(0).Take(50000).ToList();
+
+                var isAppend = !(i == 1);
+
+                StringBuilder sb = new StringBuilder();
+                sb.Append(ToCsv(idata, !isAppend));
+
+                isAppend = false;
+                WriteFile(FilePath + $"\\{FileName}{i}.txt", sb.ToString(), isAppend);
+
+                Console.WriteLine($"Write success ({i})");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Err ({i})  ({ex.Message})");
+                throw;
+           }
 
         }
 
