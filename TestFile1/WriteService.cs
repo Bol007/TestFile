@@ -16,6 +16,8 @@ namespace TestFile1
 
         public string FilePath { get; set; }
         public string FileName { get; set; } = "x";
+        public int TotalData { get; set; } = 1000000;
+        public int NumberDataForLoop { get; set; } = 100000;
 
         public WriteService()
         {
@@ -35,8 +37,7 @@ namespace TestFile1
 
         private async void StepOne()
         {
-            var model = new Model1();
-            var total = 100000000;
+            var total = TotalData;
             var loopRec = 1000000;
             var nLoop = total / loopRec;
 
@@ -46,21 +47,20 @@ namespace TestFile1
                 Console.WriteLine($"StepOne :  {i} ");
                 await StepTwo(i);   // รอให้เสร็จ+
                 var e = DateTime.Now;
-                Console.WriteLine("<<<<<<  "  +  (e - s).TotalMinutes);
+                Console.WriteLine("<<<<<<  " + (e - s).TotalMinutes);
             }
 
         }
 
         private async Task<bool> StepTwo(int a)
         {
-            var model = new Model1();
 
             var total = 1000000;
-            var loopRec = 100000;
+            var loopRec = NumberDataForLoop;
             var nLoop = total / loopRec;
             var nFile = nLoop * a;
             var number = nLoop * (a - 1);
-            
+
             //  แบ่ง task ทำงาน
             for (int i = 1; i <= nLoop; i++)
             {
@@ -90,7 +90,7 @@ namespace TestFile1
             {
                 Console.WriteLine($"ReadAndWrite :  {i} ");
                 var model = new Model1();
-                var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(0).Take(50000).ToList();
+                var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(0).Take(NumberDataForLoop).ToList();
 
                 var isAppend = !(i == 1);
 
@@ -106,7 +106,7 @@ namespace TestFile1
             {
                 Console.WriteLine($"Err ({i})  ({ex.Message})");
                 throw;
-           }
+            }
 
         }
 
@@ -162,13 +162,41 @@ namespace TestFile1
 
                 var lines = File.ReadAllLines(fullpath); // ระวังใหญ่เกิน
                 StringBuilder sb = new StringBuilder();
+                var index = 1;
                 foreach (var itemLine in lines)
                 {
-                    sb.Append(itemLine);
+                    if (index == lines.Length)
+                    {
+                        // บรรทัดสุดท้ายของไฟล์จะมี new line อยู่ ต้องการตัด new line
+                        sb.Append(itemLine);
+                    }
+                    else
+                    {
+                        sb.AppendLine(itemLine);
+                    }
+                    
+                    index++;
                 }
 
                 WriteFile(newFile, sb.ToString(), true);
             }
+        }
+
+        public void ReadFile()
+        {
+            var newFile = Environment.CurrentDirectory + "\\final.txt";
+            var num = 0;
+            using (StreamReader sw = new StreamReader(newFile))
+            {
+                while (sw.Peek() >= 0)
+                {
+                    num++;
+                    string line = sw.ReadLine();
+                    Console.WriteLine($"Data >> {line}");
+                }
+                Console.WriteLine($"Record ({num})");
+            }
+
         }
 
     }
