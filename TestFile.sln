@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFile1", "TestFile1\Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAPI", "TestAPI\TestAPI.csproj", "{00469882-98B0-4D99-9741-864F46C3546D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GSB.AlternativeScore.Utils", "GSB.AlternativeScore.Utils\GSB.AlternativeScore.Utils.csproj", "{2D4A5F13-7190-44E2-AF05-46535CDBF200}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{00469882-98B0-4D99-9741-864F46C3546D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00469882-98B0-4D99-9741-864F46C3546D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00469882-98B0-4D99-9741-864F46C3546D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D4A5F13-7190-44E2-AF05-46535CDBF200}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D4A5F13-7190-44E2-AF05-46535CDBF200}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D4A5F13-7190-44E2-AF05-46535CDBF200}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D4A5F13-7190-44E2-AF05-46535CDBF200}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

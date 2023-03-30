@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using GSB.AlternativeScore.Utils.APIs;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
@@ -13,25 +14,57 @@ namespace TestFile1
     {
         static void Main(string[] args)
         {
-
-            try
+            Console.Write("input record count :");
+            var input = Console.ReadLine();
+            do
             {
                 var s = DateTime.Now;
-                var x = new WriteService();
-                //x.Process();
-                x.ReadFile();
+                ApiGateProxyBuilder apiBuilder = new ApiGateProxyBuilder("http://192.168.205.92/TestApi/api/");
+                var api = apiBuilder.Build();
+
+                var rec = int.Parse(input);
+                var items = api.GetToTypeWithErr<List<CBS_LN_APP>>($"homes/{rec}");
                 var e = DateTime.Now;
-                Console.WriteLine((e - s).TotalMinutes);
-            }
-            catch (Exception   ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
+
+                Console.WriteLine($"============================");
+                Console.WriteLine($"start : {s}");
+                Console.WriteLine($"end : {e}");
+                Console.WriteLine($"TotalSeconds  {(e - s).TotalSeconds}" );
+                Console.WriteLine($"Record count : {items.Count}");
+                Console.WriteLine($"============================");
+
+                Console.Write("input record count :");
+                 input = Console.ReadLine();
+
+            } while (input != "e");
+
            
+
             Console.ReadLine();
 
         }
+
+        //static void Main(string[] args)
+        //{
+
+        //    try
+        //    {
+        //        var s = DateTime.Now;
+        //        var x = new WriteService();
+        //        //x.Process();
+        //        x.ReadFile();
+        //        var e = DateTime.Now;
+        //        Console.WriteLine((e - s).TotalMinutes);
+        //    }
+        //    catch (Exception   ex)
+        //    {
+        //        Console.WriteLine(ex.Message);
+        //        throw;
+        //    }
+
+        //    Console.ReadLine();
+
+        //}
 
 
         //        static void Main(string[] args)

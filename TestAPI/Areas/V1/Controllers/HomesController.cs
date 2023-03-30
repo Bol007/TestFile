@@ -11,10 +11,14 @@ namespace TestAPI.Areas.V1.Controllers
     public class HomesController : ApiController
     {
         // GET api/<controller>
-        public IEnumerable<CBS_LN_APP> Get()
+
+        [HttpGet()]
+        [Route("api/Homes/{id}", Name = "GetAll")]
+        public IEnumerable<CBS_LN_APP> GetAll(int id)
         {
             var model = new Model1();
-            var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(0).Take(100000).ToList();
+            //var idata = model.Database.SqlQuery<CBS_LN_APP>("select top 100000 * from CBS_LN_APP").ToArray();
+            var idata = model.CBS_LN_APP.AsNoTracking().OrderBy(q => q.CBS_APP_NO).Skip(0).Take(id).ToList();
 
             return idata;
         }
